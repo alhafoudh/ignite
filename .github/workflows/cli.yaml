@@ -13,8 +13,31 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     name: Upload ${{ matrix.os }} binaries to release ${{ github.event.release.tag_name }}
     steps:
-      - name: Upload binaries to release ${{ github.event.release.tag_name }} on ${{ matrix.os }}
-        uses: caijinglong/action-dart-compile@v1
+      - name: "Check is release"
+        shell: bash
+        run: |
+          if [ -z "${{ github.event.release.tag_name }}" ]; then
+            echo "This is not a release, skipping"
+            exit 78
+          fi
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - name: compile and upload
+        shell: bash
+        run: |
+          export TAG_NAME=${{ github.event.release.tag_name }}
+          export BUILD_OS="$(uname -s)-$(uname -m)"
+          cd $GITHUB_WORKSPACE
+          dart pub get
+          dart analyze
+          dart compile exe bin/ignite.dart
+          chmod +x bin/ignite.exe
+          cd bin/
+          gh release upload $TAG_NAME ignite.exe
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
