@@ -8,7 +8,6 @@ class DeploymentController < ApplicationController
     response.headers['Last-Modified'] = Time.now.httpdate
 
     sse = SSE.new(response.stream, retry: 300, event: "open")
-    # sse = nil
 
     app_id = params[:id].parameterize
     app = App.find_or_create_by!(name: app_id)
@@ -41,7 +40,6 @@ class DeploymentController < ApplicationController
       url: app.url
     })
 
-    # render json: {}
   rescue ActionController::Live::ClientDisconnected
     sse.close
   ensure
