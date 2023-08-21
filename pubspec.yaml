@@ -1,0 +1,17 @@
+name: ignite
+version: 1.0.0
+
+environment:
+  sdk: '>=3.0.0'
+
+dependencies:
+  args: ^2.4.2
+  eventsource: ^0.4.0
+  http: ^0.13.6
+  http_parser: ^4.0.2
+  path: ^1.8.3
+  sse: ^4.1.2
+  sse_channel: ^0.0.3
+  tar: ^1.0.1
+
+dev_dependencies:

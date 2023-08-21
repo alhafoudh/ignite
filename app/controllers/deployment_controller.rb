@@ -23,7 +23,7 @@ class DeploymentController < ApplicationController
 
     send_event(sse, :container_deploy, :start)
     app_container = app.build_deployer.redeploy(image.id)
-    send_event(sse, :container_deploy, :end, app_container&.id)
+    send_event(sse, :container_deploy, :end, app_container.id)
 
     reverse_proxy_deployer = ReverseProxyDeployer.new
     reverse_proxy_deployer.undeploy
@@ -37,11 +37,15 @@ class DeploymentController < ApplicationController
     reverse_proxy_deployer.configure
     send_event(sse, :reverse_proxy_configure, :end)
 
-    sse.write({}, event: "close")
+    send_event(sse, :app_deployed, nil, {
+      url: app.url
+    })
+
     # render json: {}
   rescue ActionController::Live::ClientDisconnected
     sse.close
   ensure
+    close_event(sse)
     sse.close
   end
 
@@ -55,5 +59,11 @@ class DeploymentController < ApplicationController
       payload:,
     }.compact,
       event: "message")
+  end
+
+  def close_event(sse)
+    sse.write({
+      type: "close",
+    }, event: "message")
   end
 end
