@@ -1,1 +1,1 @@
-js: yarn build --watch
+vite: bin/vite dev

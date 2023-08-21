@@ -9,7 +9,7 @@ class ReverseProxyDeployer < Deployer
     end
   end
 
-  def deploy
+  def deploy(*)
     Docker::Container.create(
       name: CONTAINER_NAME,
       Image: IMAGE_NAME,
@@ -50,13 +50,16 @@ class ReverseProxyDeployer < Deployer
         },
         apps: {
           http: {
-            servers: App.all.reduce({}) do |acc, app|
-              acc[app.container_name] = {
+            servers: {
+              reverse_proxy: {
                 listen: [
                   ":80"
                 ],
-                routes: [
-                  {
+                routes: App.all.reduce([]) do |acc, app|
+                  acc << {
+                    match: [
+                      host: [app.hostname],
+                    ],
                     handle: [
                       {
                         handler: "reverse_proxy",
@@ -68,14 +71,18 @@ class ReverseProxyDeployer < Deployer
                       }
                     ]
                   }
-                ]
+                  acc
+                end.flatten
               }
-              acc
-            end
+            }
           }
         }
       }
-    )
+    ).tap do |response|
+      unless response.status == 200
+        binding.pry
+      end
+    end
   end
 
   def wait_ready

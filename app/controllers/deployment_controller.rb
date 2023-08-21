@@ -10,8 +10,8 @@ class DeploymentController < ApplicationController
     sse = SSE.new(response.stream, retry: 300, event: "open")
     # sse = nil
 
-    app_id = params[:id]
-    app = App.find(app_id)
+    app_id = params[:id].parameterize
+    app = App.find_or_create_by!(name: app_id)
 
     send_event(sse, :image_build, :start)
     image = AppBuilder
@@ -22,7 +22,7 @@ class DeploymentController < ApplicationController
     send_event(sse, :image_build, :end, image.id)
 
     send_event(sse, :container_deploy, :start)
-    app_container = AppDeployer.new(app, image).redeploy
+    app_container = app.build_deployer.redeploy(image.id)
     send_event(sse, :container_deploy, :end, app_container&.id)
 
     reverse_proxy_deployer = ReverseProxyDeployer.new

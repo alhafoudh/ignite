@@ -6,8 +6,12 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <%= vite_client_tag %>
+    <%= vite_typescript_tag 'application' %>
+
+    <script>
+      window.env = <%= Rails.env.to_json.html_safe %>;
+    </script>
   </head>
 
   <body>

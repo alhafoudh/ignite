@@ -1,10 +1,8 @@
 class AppDeployer < Deployer
   attr_reader :app
-  attr_reader :image
 
-  def initialize(app, image)
+  def initialize(app)
     @app = app
-    @image = image
   end
 
   def container
@@ -14,10 +12,10 @@ class AppDeployer < Deployer
     end
   end
 
-  def deploy
+  def deploy(image)
     Docker::Container.create(
       name: app.container_name,
-      Image: image.id,
+      Image: image,
       Env: [
         "PORT=80",
       ],

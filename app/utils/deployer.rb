@@ -3,7 +3,7 @@ class Deployer
     raise NotImplementedError
   end
 
-  def deploy
+  def deploy(image)
     raise NotImplementedError
   end
 
@@ -17,17 +17,22 @@ class Deployer
     container.present? && container.info["State"] == "running"
   end
 
-  def ensure
+  def ensure(image = nil)
     if deployed?
       container
     else
-      deploy
+      deploy(image)
     end
   end
 
-  def redeploy
+  def redeploy(image = nil)
     undeploy
-    deploy
+    image = image || current_image
+    deploy(image)
+  end
+
+  def current_image
+    (container&.info || {})["Image"]
   end
 
   def wait_for_http(url, timeout: 5)

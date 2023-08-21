@@ -75,3 +75,5 @@ gem "oj", "~> 3.16"
 
 gem "docker-api", "~> 2.2"
 gem "http", "~> 5.1"
+
+gem "vite_rails", "~> 3.0"
