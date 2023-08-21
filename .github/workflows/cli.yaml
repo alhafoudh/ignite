@@ -9,7 +9,7 @@ jobs:
   upload:
     strategy:
       matrix:
-        os: [windows]
+        os: [ windows macos ubuntu ]
     runs-on: ${{ matrix.os }}-latest
     name: Upload ${{ matrix.os }} binaries to release ${{ github.event.release.tag_name }}
     steps:
@@ -37,7 +37,7 @@ jobs:
           dart compile exe bin/ignite.dart
           chmod +x bin/ignite.exe
           cd bin/
-          gh release upload $TAG_NAME ignite.exe
+          gh release upload $TAG_NAME ignite_${{ matrix.os }}.exe
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
