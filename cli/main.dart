@@ -2,29 +2,67 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:eventsource/eventsource.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart';
 import 'package:tar/tar.dart';
 
+class Config {
+  String? url;
+
+  Config({this.url});
+}
+
 void main(List<String> args) async {
-  if (args.length < 2) {
-    print('Usage: ignite <app-name> <source-dir>');
+  final mainArg = ArgParser();
+  final loginCommand = ArgParser();
+  mainArg.addCommand('login', loginCommand);
+  final deployCommand = ArgParser();
+  mainArg.addCommand('deploy', deployCommand);
+
+  final parsed = mainArg.parse(args);
+
+  if (parsed.command?.name == 'login' &&
+      parsed.command!.arguments.length == 1) {
+    final url = parsed.command!.arguments.first;
+    final config = await loadConfig();
+    config.url = url;
+    await saveConfig(config);
+    return;
+  } else if (parsed.command?.name == 'deploy' &&
+      parsed.command!.arguments.length == 2) {
+    final appName = parsed.command!.arguments.first;
+    final sourceDir = Directory(parsed.command!.arguments.last);
+
+    await deploy(appName, sourceDir);
+  }
+}
+
+Future<Config> loadConfig() async {
+  final configFile = File('.ignite');
+  if (!await configFile.exists()) {
+    return Config();
+  }
+
+  final content = await configFile.readAsString();
+  final json = jsonDecode(content);
+  return Config(url: json['url']);
+}
+
+Future saveConfig(Config config) async {
+  final configFile = File('.ignite');
+  final json = jsonEncode({'url': config.url});
+  await configFile.writeAsString(json);
+}
+
+Future deploy(String appName, Directory sourceDir) async {
+  final config = await loadConfig();
+  if (config.url == null) {
+    print('Please login first');
     exit(1);
   }
-  final appName = args.first;
-  final sourceDir = Directory(args.last);
-
-  // final tarEntries = Stream<TarEntry>.value(
-  //   TarEntry.data(
-  //     TarHeader(
-  //       name: 'hello.txt',
-  //       mode: int.parse('644', radix: 8),
-  //     ),
-  //     utf8.encode('Hello world'),
-  //   ),
-  // );
 
   final fileEntities = await sourceDir.list(recursive: true);
   final tarEntries = fileEntities.map((fileEntry) {
@@ -64,7 +102,7 @@ void main(List<String> args) async {
   final body = await multipartRequest.finalize().bytesToString();
 
   final eventSource = await EventSource.connect(
-      "http://localhost:3000/apps/$appName/deployments",
+      "${config.url}/apps/$appName/deployments",
       method: 'POST',
       headers: multipartRequest.headers,
       body: body);
