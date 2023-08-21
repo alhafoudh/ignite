@@ -1,0 +1,28 @@
+{
+  "arrowParens": "avoid",
+  "singleQuote": true,
+  "proseWrap": "never",
+  "printWidth": 120,
+  "tabWidth": 4,
+  "trailingComma": "es5",
+  "useTabs": false,
+  "overrides": [
+    {
+      "files": [
+        "*.json",
+        ".prettierrc"
+      ],
+      "options": {
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": [
+        "package.json"
+      ],
+      "options": {
+        "tabWidth": 4
+      }
+    }
+  ]
+}
