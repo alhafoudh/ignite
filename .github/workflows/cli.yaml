@@ -37,6 +37,7 @@ jobs:
           dart compile exe bin/ignite.dart
           chmod +x bin/ignite.exe
           cd bin/
+          mv ignite.exe ignite_${{ matrix.os }}.exe
           gh release upload $TAG_NAME ignite_${{ matrix.os }}.exe
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
