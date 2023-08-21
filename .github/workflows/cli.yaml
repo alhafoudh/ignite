@@ -9,7 +9,7 @@ jobs:
   upload:
     strategy:
       matrix:
-        os: [ windows macos ubuntu ]
+        os: [ windows, macos, ubuntu ]
     runs-on: ${{ matrix.os }}-latest
     name: Upload ${{ matrix.os }} binaries to release ${{ github.event.release.tag_name }}
     steps:
