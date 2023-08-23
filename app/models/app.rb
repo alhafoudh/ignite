@@ -1,6 +1,8 @@
 class App < ApplicationRecord
   after_destroy_commit :destroy_container
 
+  has_many :deployments
+
   def running?
     build_deployer.container_deployed?
   end

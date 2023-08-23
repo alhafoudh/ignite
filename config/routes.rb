@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   resources :apps do
-    member do
-      post 'deployments' => 'deployment#create'
+    resources :deployments, only: [:create] do
+      member do
+        post 'start' => 'deployments#start'
+      end
     end
   end
 
