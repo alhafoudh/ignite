@@ -122,7 +122,7 @@ class DeployCommand extends Command {
       if (event.event == 'message') {
         final json = jsonDecode(event.data!);
         if (json['type'] == 'log') {
-          stderr.write('>> ${json['payload']}');
+          stderr.write(json['payload']);
         } else if (json['type'] == 'close') {
           exit(0);
         } else {
