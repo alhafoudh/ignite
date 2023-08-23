@@ -1,5 +1,5 @@
 class Deployer
-  def container
+  def resource
     raise NotImplementedError
   end
 
@@ -8,18 +8,26 @@ class Deployer
   end
 
   def undeploy
-    container.tap do |container|
+    resource.tap do |container|
       container&.remove(force: true)
     end
   end
 
   def deployed?
-    container.present? && container.info["State"] == "running"
+    container_deployed?
+  end
+
+  def resource_deployed?
+    resource.present?
+  end
+
+  def container_deployed?
+    resource_deployed? && resource.info["State"] == "running"
   end
 
   def ensure(image = nil)
     if deployed?
-      container
+      resource
     else
       deploy(image)
     end
@@ -32,7 +40,7 @@ class Deployer
   end
 
   def current_image
-    (container&.info || {})["Image"]
+    (resource&.info || {})["Image"]
   end
 
   def wait_for_http(url, timeout: 5)

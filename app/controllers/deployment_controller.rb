@@ -8,15 +8,20 @@ class DeploymentController < ApplicationController
     response.headers['Last-Modified'] = Time.now.httpdate
 
     sse = SSE.new(response.stream, retry: 300, event: "open")
+    # sse = nil
+
+    send_event(sse, :network_deploy, :start)
+    network = NetworkDeployer.new.ensure
+    send_event(sse, :network_deploy, :end, network.id)
 
     app_id = params[:id].parameterize
     app = App.find_or_create_by!(name: app_id)
 
     send_event(sse, :image_build, :start)
     image = AppBuilder
-      .new(params[:file])
-      .run do |log|
-      send_event(sse, :log, nil, log)
+      .new(params[:file].tempfile)
+      .run do |chunk|
+      send_event(sse, :log, nil, chunk)
     end
     send_event(sse, :image_build, :end, image.id)
 
@@ -25,7 +30,6 @@ class DeploymentController < ApplicationController
     send_event(sse, :container_deploy, :end, app_container.id)
 
     reverse_proxy_deployer = ReverseProxyDeployer.new
-    reverse_proxy_deployer.undeploy
 
     send_event(sse, :reverse_proxy_depoy, :start)
     reverse_proxy = reverse_proxy_deployer.ensure
@@ -40,8 +44,7 @@ class DeploymentController < ApplicationController
       url: app.url
     })
 
-  rescue ActionController::Live::ClientDisconnected
-    sse.close
+    # render json: {}
   ensure
     close_event(sse)
     sse.close
@@ -50,7 +53,7 @@ class DeploymentController < ApplicationController
   private
 
   def send_event(sse, event, phase = nil, payload = nil)
-    Rails.logger.info({ event:, phase:, payload: })
+    Rails.logger.tagged(:sse).debug({ event:, phase:, payload: })
     sse.write({
       type: event,
       phase:,
@@ -60,6 +63,7 @@ class DeploymentController < ApplicationController
   end
 
   def close_event(sse)
+    Rails.logger.tagged(:sse).info({ event: :close })
     sse.write({
       type: "close",
     }, event: "message")

@@ -9,18 +9,32 @@ class AppBuilder
 
   def run(&block)
     Dir.mktmpdir do |tmpdir|
-      untar(file.tempfile, tmpdir)
+      untar(file, tmpdir)
       dockerfile = File.read(Rails.root.join('samples', 'Dockerfile'))
       File.write(File.join(tmpdir, 'Dockerfile'), dockerfile)
 
-      Docker::Image.build_from_dir(tmpdir) do |v|
-        lines = v.split("\r\n")
-        lines.map do |line|
-          if (log = JSON.parse(line)) && log.has_key?("stream")
-            block.call(log["stream"])
-          end
-        end
+      container = Docker::Container.create(
+        name: "builder-#{SecureRandom.hex}",
+        Image: "gliderlabs/herokuish:latest-22",
+        Cmd: %w[/build],
+        Env: [
+          "CACHE_PATH=/cache"
+        ],
+        HostConfig: {
+          Binds: [
+            "#{Rails.root.join('tmp', 'builder-cache')}:/cache",
+            "#{tmpdir}:/tmp/app",
+          ]
+        },
+      )
+      container.start
+      container.attach(stdout: true, stderr: true, tty: true, logs: true, stream: true) do |chunk|
+        block.call(chunk)
       end
+      container.wait
+      image = container.commit
+      container.delete(force: true)
+      image
     end
   end
 end

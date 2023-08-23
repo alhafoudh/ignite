@@ -16,6 +16,7 @@ class AppDeployer < Deployer
     Docker::Container.create(
       name: app.container_name,
       Image: image,
+      Cmd: %w[/start web],
       Env: [
         "PORT=80",
       ],
