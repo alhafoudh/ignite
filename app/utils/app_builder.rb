@@ -28,7 +28,7 @@ class AppBuilder
     container.attach(stdout: true, stderr: true, tty: true, logs: true, stream: true) do |chunk|
       block.call(chunk)
     end
-    container.wait
+    container.wait(600)
     image = container.commit
     container.delete(force: true)
     image
