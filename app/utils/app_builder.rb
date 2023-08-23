@@ -29,6 +29,7 @@ class AppBuilder
       block.call(chunk)
     end
     container.wait
+    container.run(%w[rm -rf /tmp/app])
     image = container.commit
     container.delete(force: true)
     image

@@ -17,7 +17,6 @@ class AppDeployer < Deployer
       name: app.container_name,
       Image: image,
       Cmd: %w[/start web],
-      Workdir: "/app",
       Env: [
         "PORT=80",
       ],
