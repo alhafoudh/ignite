@@ -8,7 +8,6 @@ class DeploymentController < ApplicationController
     response.headers['Last-Modified'] = Time.now.httpdate
 
     sse = SSE.new(response.stream, retry: 300, event: "open")
-    # sse = nil
 
     send_event(sse, :network_deploy, :start)
     network = NetworkDeployer.new.ensure
@@ -48,10 +47,11 @@ class DeploymentController < ApplicationController
 
     app.update!(last_deployed_at: Time.zone.now)
 
-    # render json: {
-    #   success: true,
-    #   url: app.url
-    # }
+  rescue => ex
+    send_event(sse, :error, nil, {
+      message: ex.message,
+    })
+    raise ex
   ensure
     close_event(sse)
     sse.close
