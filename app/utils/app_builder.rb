@@ -10,7 +10,7 @@ class AppBuilder
     container = Docker::Container.create(
       name: "builder-#{SecureRandom.hex}",
       Image: builder_image.id,
-      Cmd: Shellwords.shellsplit("/bin/sh -c '/build && rm -rf /tmp/app'"),
+      Cmd: Shellwords.shellsplit("/bin/sh -c 'rm -rf /app; mkdir -p /app; /build && rm -rf /tmp/app'"),
       Env: [
         "CACHE_PATH=/cache"
       ],
@@ -25,10 +25,15 @@ class AppBuilder
       file.read
     end
     container.start
-    container.attach(stdout: true, stderr: true, tty: true, logs: true, stream: true) do |chunk|
+    container.attach(stdout: true, stderr: true, logs: true, stream: true) do |stream, chunk|
       block.call(chunk)
     end
-    container.wait(600)
+
+    result = container.wait(600)
+    if result['StatusCode'] != 0
+      raise "Build failed"
+    end
+
     image = container.commit
     container.delete(force: true)
     image
