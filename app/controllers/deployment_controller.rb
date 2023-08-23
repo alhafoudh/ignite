@@ -25,8 +25,10 @@ class DeploymentController < ApplicationController
     end
     send_event(sse, :image_build, :end, image.id)
 
+    app.update!(image: image.id)
+
     send_event(sse, :container_deploy, :start)
-    app_container = app.build_deployer.redeploy(image.id)
+    app_container = app.build_deployer.redeploy(app.image)
     send_event(sse, :container_deploy, :end, app_container.id)
 
     reverse_proxy_deployer = ReverseProxyDeployer.new

@@ -13,6 +13,9 @@
         <th scope="col" class="px-6 py-3">
           URL
         </th>
+        <th scope="col" class="px-6 py-3">
+          Image
+        </th>
         <th scope="col" class="px-6 py-3 text-right w-48">
           Last deployed
         </th>
@@ -35,8 +38,15 @@
           <td class="px-6 py-4">
             <%= link_to app.url, app.url, target: :_blank, class: 'text-blue-500 underline' %>
           </td>
+          <td class="px-6 py-4 font-mono">
+            <% if app.image.present? %>
+              <%= app.image %>
+            <% else %>
+              &dash;
+            <% end %>
+          </td>
           <td class="px-6 py-4 text-right">
-            <% if app.last_deployed_at %>
+            <% if app.last_deployed_at.present? %>
               <%= time_ago_in_words app.last_deployed_at %> ago
             <% else %>
               &dash;
