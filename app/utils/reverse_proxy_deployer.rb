@@ -43,7 +43,7 @@ class ReverseProxyDeployer < Deployer
 
   def configure
     HTTP.post(
-      "http://localhost:2019/load",
+      "#{Config.current.reverse_proxy_control_url}/load",
       json: {
         admin: {
           listen: "0.0.0.0:2019"
@@ -86,6 +86,6 @@ class ReverseProxyDeployer < Deployer
   end
 
   def wait_ready
-    wait_for_http("http://localhost:2019/config/")
+    wait_for_http("#{Config.current.reverse_proxy_control_url}/config/")
   end
 end
