@@ -61,8 +61,8 @@ module Ignite
     end
 
     config.time_zone = 'Bratislava'
-    config.i18n.default_locale = :sk
-    config.i18n.available_locales = %i[sk]
+    config.i18n.default_locale = :en
+    config.i18n.available_locales = %i[en]
 
     config.assets.css_compressor = nil # solves tailwindcss purgecss issue
 

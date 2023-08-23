@@ -5,7 +5,7 @@ class AppDeployer < Deployer
     @app = app
   end
 
-  def container
+  def resource
     Docker::Container.all(all: true).find do |container|
       names = container.info["Names"]
       names.include?("/#{app.container_name}")

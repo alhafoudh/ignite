@@ -1,0 +1,50 @@
+<section class="px-8">
+  <h1 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Apps</h1>
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th scope="col" class="px-6 py-3 w-64">
+          Name
+        </th>
+        <th scope="col" class="px-6 py-3 text-center w-32">
+          Running
+        </th>
+        <th scope="col" class="px-6 py-3">
+          URL
+        </th>
+        <th scope="col" class="px-6 py-3 text-right w-48">
+          Last deployed
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @apps.map do |app| %>
+        <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            <%= app.name %>
+          </th>
+          <td class="px-6 py-4 text-center">
+            <div class="<%=
+              class_names(
+                'inline-block w-3 h-3 rounded-full bg-black',
+                'bg-green-500 animate-pulse' => app.running?,
+                'bg-red-500' => !app.running?,
+              ) %>"></div>
+          </td>
+          <td class="px-6 py-4">
+            <%= link_to app.url, app.url, target: :_blank, class: 'text-blue-500 underline' %>
+          </td>
+          <td class="px-6 py-4 text-right">
+            <% if app.last_deployed_at %>
+              <%= time_ago_in_words app.last_deployed_at %> ago
+            <% else %>
+              &dash;
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

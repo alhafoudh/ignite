@@ -44,6 +44,8 @@ class DeploymentController < ApplicationController
       url: app.url
     })
 
+    app.update!(last_deployed_at: Time.zone.now)
+
     # render json: {}
   ensure
     close_event(sse)

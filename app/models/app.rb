@@ -1,6 +1,10 @@
 class App < ApplicationRecord
   after_destroy_commit :destroy_container
 
+  def running?
+    build_deployer.container_deployed?
+  end
+
   def container_name
     "app-#{id}"
   end

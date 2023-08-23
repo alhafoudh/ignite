@@ -2,7 +2,7 @@ class ReverseProxyDeployer < Deployer
   CONTAINER_NAME = "reverse_proxy"
   IMAGE_NAME = "caddy:2.7.4-alpine"
 
-  def container
+  def resource
     Docker::Container.all(all: true).find do |container|
       names = container.info["Names"]
       names.include?("/#{CONTAINER_NAME}")

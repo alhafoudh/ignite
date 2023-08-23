@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  get 'reverse_proxy/reconfigure'
   resources :apps do
     member do
       post 'deployments' => 'deployment#create'
@@ -9,4 +8,6 @@ Rails.application.routes.draw do
   scope :reverse_proxy do
     post 'reconfigure' => 'reverse_proxy#reconfigure'
   end
+
+  root to: 'apps#index'
 end
