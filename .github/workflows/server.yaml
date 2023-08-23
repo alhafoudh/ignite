@@ -1,4 +1,5 @@
 name: Build and publish server docker image
+run-name: Building and publishing docker image for release ${{ github.event.release.tag_name }}
 
 on:
   release:
