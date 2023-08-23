@@ -1,1 +1,0 @@
-ReverseProxyDeployer.new.undeploy
