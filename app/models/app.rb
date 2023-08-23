@@ -6,7 +6,7 @@ class App < ApplicationRecord
   end
 
   def hostname
-    "#{name}.ignite.127.0.0.1.nip.io"
+    "#{name}.#{Config.current.base_host}"
   end
 
   def url
