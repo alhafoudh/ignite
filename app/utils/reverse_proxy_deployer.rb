@@ -78,11 +78,7 @@ class ReverseProxyDeployer < Deployer
           }
         }
       }
-    ).tap do |response|
-      unless response.status == 200
-        binding.pry
-      end
-    end
+    )
   end
 
   def wait_ready
