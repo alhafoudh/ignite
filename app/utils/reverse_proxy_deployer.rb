@@ -10,9 +10,10 @@ class ReverseProxyDeployer < Deployer
   end
 
   def deploy(*)
+    reverse_proxy_image = Docker::Image.create(fromImage: IMAGE_NAME)
     Docker::Container.create(
       name: CONTAINER_NAME,
-      Image: IMAGE_NAME,
+      Image: reverse_proxy_image.id,
       ExposedPorts: {
         "2019/tcp" => {},
         "80/tcp" => {},

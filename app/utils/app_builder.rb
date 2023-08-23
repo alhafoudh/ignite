@@ -11,9 +11,10 @@ class AppBuilder
     Dir.mktmpdir do |tmpdir|
       untar(file, tmpdir)
 
+      builder_image = Docker::Image.create(fromImage: 'gliderlabs/herokuish:latest-22')
       container = Docker::Container.create(
         name: "builder-#{SecureRandom.hex}",
-        Image: "gliderlabs/herokuish:latest-22",
+        Image: builder_image.id,
         Cmd: %w[/build],
         Env: [
           "CACHE_PATH=/cache"
