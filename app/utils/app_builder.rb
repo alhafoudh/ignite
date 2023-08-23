@@ -10,8 +10,6 @@ class AppBuilder
   def run(&block)
     Dir.mktmpdir do |tmpdir|
       untar(file, tmpdir)
-      dockerfile = File.read(Rails.root.join('samples', 'Dockerfile'))
-      File.write(File.join(tmpdir, 'Dockerfile'), dockerfile)
 
       container = Docker::Container.create(
         name: "builder-#{SecureRandom.hex}",
