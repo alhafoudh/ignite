@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_23_083026) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_23_114453) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -29,6 +29,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_23_083026) do
     t.string "base_host", default: "ignite.127.0.0.1.nip.io", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "reverse_proxy_control_url", default: "http://localhost:2019", null: false
     t.index ["singleton_guard"], name: "index_configs_on_singleton_guard", unique: true
   end
 
