@@ -10,7 +10,7 @@ class AppBuilder
     container = Docker::Container.create(
       name: "builder-#{SecureRandom.hex}",
       Image: builder_image.id,
-      Cmd: %w[/build],
+      Cmd: Shellwords.shellsplit("/bin/sh -c '/build && rm -rf /tmp/app'"),
       Env: [
         "CACHE_PATH=/cache"
       ],
