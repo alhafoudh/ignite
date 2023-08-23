@@ -29,9 +29,6 @@ class AppBuilder
       block.call(chunk)
     end
     container.wait
-    container.exec(%w[rm -rf /tmp/app]) do |stream, chunk|
-      block.call(chunk)
-    end
     image = container.commit
     container.delete(force: true)
     image
