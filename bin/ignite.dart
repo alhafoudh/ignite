@@ -108,16 +108,27 @@ class DeployCommand extends Command {
 
     final multipartFile = MultipartFile.fromBytes('file', tarBytes,
         filename: 'code.tar', contentType: MediaType('application', 'x-tar'));
-    final multipartRequest = MultipartRequest('POST', Uri.base)
+    final multipartRequest = MultipartRequest(
+        'POST', Uri.parse("${config.url}/apps/${config.app}/deployments"))
       ..files.add(multipartFile);
+    final deploymentResponse = await multipartRequest.send();
 
-    final body = await multipartRequest.finalize().bytesToString();
+    final deployment = await deploymentResponse.stream.first;
+
+    final json =
+        jsonDecode(String.fromCharCodes(deployment)) as Map<String, dynamic>;
+
+    if (!json.containsKey("id")) {
+      print('Error: Upload failed. $json');
+      return;
+    }
+
+    final deploymentId = json["id"] as String;
 
     final eventSource = await EventSource.connect(
-        "${config.url}/apps/${config.app}/deployments",
-        method: 'POST',
-        headers: multipartRequest.headers,
-        body: body);
+      "${config.url}/apps/${config.app}/deployments/$deploymentId/start",
+      method: 'POST',
+    );
     eventSource.onMessage.listen((Event event) {
       if (event.event == 'message') {
         final json = jsonDecode(event.data!);
@@ -129,16 +140,6 @@ class DeployCommand extends Command {
           print(':: ${json['type']} ${json['phase']} ${json['payload']}');
         }
       }
-    }, onDone: () {
-      print('Connection closed');
-    });
-
-    eventSource.onOpen.listen((Event message) {
-      print('Connection opened');
-    });
-
-    eventSource.onError.listen((Event message) {
-      print('Error: ${message}');
     });
   }
 }
